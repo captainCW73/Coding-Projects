@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a1685a5f-4d84-4bf0-8bb9-23b53a0c25ca" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Jupyter Notebook" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="32hb7prizawgzBetjluZBnHN1uC" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.2d list activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Backslash Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Class 3.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Class 4.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Class 5 Homework.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Class 5.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Class 7.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Conditional Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Contest.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Detecting collision.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Dictionary Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Displaying Text.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Dmoj sushi question class 11.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Donut Shop.executor&quot;: &quot;Run&quot;,
+    &quot;Python.First Project.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Funtions Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Homework week 2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Homework week 3.executor&quot;: &quot;Run&quot;,
+    &quot;Python.How to draw a line.executor&quot;: &quot;Run&quot;,
+    &quot;Python.How to draw a rectangle.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Indexing activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.List Activity 2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.List Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Printe end= Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Pygame Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Pygame.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Q2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Range indexing activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Rotating Letters.executor&quot;: &quot;Run&quot;,
+    &quot;Python.String Func. Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Telemarketer.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Text Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Tic Tac Toe class 8.executor&quot;: &quot;Run&quot;,
+    &quot;Python.While loops Activity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.for loops activity.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-ce6832f46686-7b97d883f26b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.25557.178" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a1685a5f-4d84-4bf0-8bb9-23b53a0c25ca" name="Changes" comment="" />
+      <created>1757875587028</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1757875587028</updated>
+    </task>
+    <task id="LOCAL-00001" summary="rh">
+      <option name="closed" value="true" />
+      <created>1759692107014</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1759692107014</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="hi" />
+    <MESSAGE value="rh" />
+    <option name="LAST_COMMIT_MESSAGE" value="rh" />
+  </component>
+</project>

@@ -1,0 +1,235 @@
+:root {
+    --bg-color: #050510;
+    --grid-color: #1a1a2e;
+    --primary-neon: #00f3ff;
+    --secondary-neon: #ff00ff;
+    --text-color: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+    user-select: none;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    box-shadow: 0 0 50px rgba(0, 243, 255, 0.1);
+    border: 1px solid var(--grid-color);
+    background-image:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* HUD */
+#hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.stat-box {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 0.8rem;
+    color: var(--primary-neon);
+    letter-spacing: 2px;
+}
+
+#score-display,
+#gem-display {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Screens */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 16, 0.85);
+    backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+    transition: opacity 0.3s ease;
+}
+
+.screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+h1 {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px var(--primary-neon);
+    background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2 {
+    font-size: 2.5rem;
+    color: var(--secondary-neon);
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    color: #a0a0b0;
+}
+
+/* Buttons */
+.neon-btn {
+    background: transparent;
+    border: 2px solid var(--primary-neon);
+    color: var(--primary-neon);
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+}
+
+.neon-btn:hover {
+    background: var(--primary-neon);
+    color: var(--bg-color);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+}
+
+.neon-btn.secondary {
+    border-color: var(--secondary-neon);
+    color: var(--secondary-neon);
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.2);
+    margin-left: 20px;
+}
+
+.neon-btn.secondary:hover {
+    background: var(--secondary-neon);
+    color: var(--bg-color);
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);
+}
+
+/* Shop */
+#shop-screen {
+    justify-content: flex-start;
+    padding-top: 80px;
+}
+
+.shop-header {
+    width: 80%;
+    max-width: 800px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    font-size: 1.5rem;
+    color: var(--secondary-neon);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 3rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.close-btn:hover {
+    transform: scale(1.1);
+    color: var(--secondary-neon);
+}
+
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    width: 80%;
+    max-width: 800px;
+}
+
+.shop-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.shop-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-neon);
+}
+
+.item-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.item-name {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.item-cost {
+    color: var(--secondary-neon);
+    font-size: 0.9rem;
+}
