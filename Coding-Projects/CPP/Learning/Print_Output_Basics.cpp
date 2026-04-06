@@ -1,9 +1,9 @@
 #include <iostream>
-int main()
-{
-    int file_size = 100;
-    double sales = 9.99;
-    std::cout << file_size; 
-    return 0;
+using namespace std;
+int main() {
+  int x = 10;
+  int y = 20;
+  cout << "x = " << x << endl 
+  << "y = " << y <<     endl;
+  return 0;
 }
- 
