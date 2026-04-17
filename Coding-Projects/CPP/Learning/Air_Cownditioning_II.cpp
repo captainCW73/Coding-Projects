@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 int main() {
-  int nm;
-  cout << "";
+  int n, m_limit;
+  cin >> n >> m_limit;
+  return 0;
 }
