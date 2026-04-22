@@ -1,8 +1,0 @@
-{
-    "env": {
-        "ANTHROPIC_BASE_URL": "https://openrouter.ai/api/v1",
-        "ANTHROPIC_AUTH_TOKEN": "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",
-        "ANTHROPIC_API_KEY": "",
-        "ANTHROPIC_MODEL": "nvidia/nemotron-nano-12b-v2-vl:free"
-    }
-}
