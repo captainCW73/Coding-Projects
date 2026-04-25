@@ -1,0 +1,595 @@
+# Newsletter Reader — Python + Flask App
+
+A local-first newsletter aggregator that pulls emails from **Apple Mail** (AppleScript) and **Gmail** (Gmail API), stores them in **SQLite**, and uses the **Gemini API** to auto-detect newsletter senders.
+
+---
+
+## Background & Goals
+
+| Goal | Detail |
+|---|---|
+| **Dual source** | Read from Apple Mail (macOS only, via AppleScript) and Gmail (cross-platform, via Gmail API) |
+| **Offline-first** | Full email content stored locally in SQLite — app works entirely offline after sync |
+| **AI-powered detection** | On first run, scan the inbox and use Gemini to classify which senders are newsletters |
+| **Clean web UI** | Inbox list view + full reading view, sync button, responsive design |
+| **Free APIs only** | Gmail API (free), Gemini API free tier, no paid services |
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **macOS Permissions**: The Apple Mail integration requires granting **Automation** permission to Terminal (or whichever app runs the Flask server) in **System Settings → Privacy & Security → Automation**. The user will be prompted on first run.
+
+> [!IMPORTANT]
+> **Gmail OAuth Setup**: The user must create a Google Cloud project, enable the Gmail API, configure an OAuth consent screen, and download `credentials.json` before Gmail sync will work. The plan includes a setup guide in the README.
+
+> [!WARNING]
+> **Gemini API Free Tier**: Inputs/outputs on the free tier may be used by Google to improve their products. The free tier has rate limits (~15 RPM, ~1500 RPD). Newsletter detection for a large inbox may need batching.
+
+---
+
+## Open Questions
+
+> [!IMPORTANT]
+> **Scope of inbox scan**: Should the initial scan pull the last N emails (e.g., 500) or attempt the entire inbox? A large inbox could take significant time and hit Gemini rate limits. **Recommendation: default to last 500, configurable.**
+
+> [!IMPORTANT]
+> **Apple Mail accounts**: Should the app scan all accounts configured in Apple Mail, or just a specific one? **Recommendation: scan all accounts by default, let the user filter later.**
+
+> [!NOTE]
+> **Image proxying**: Newsletter HTML often contains remote images. Should these be cached locally during sync for true offline viewing, or left as remote URLs? Caching adds complexity and storage. **Recommendation: leave as remote URLs for v1, add caching as a future enhancement.**
+
+---
+
+## Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "Data Sources"
+        AM["Apple Mail<br/>(AppleScript via subprocess)"]
+        GM["Gmail<br/>(Gmail API + OAuth2)"]
+    end
+
+    subgraph "Backend (Flask)"
+        SYNC["Sync Engine"]
+        AI["Gemini AI<br/>Newsletter Detector"]
+        DB[(SQLite Database)]
+        API["Flask Routes<br/>(HTML + JSON API)"]
+    end
+
+    subgraph "Frontend (Jinja2 + Vanilla JS/CSS)"
+        INBOX["Inbox View"]
+        READ["Reading View"]
+        SETTINGS["Settings / Sync"]
+    end
+
+    AM -->|"subprocess + osascript"| SYNC
+    GM -->|"google-api-python-client"| SYNC
+    SYNC --> DB
+    DB --> API
+    AI -->|"classify senders"| DB
+    API --> INBOX
+    API --> READ
+    API --> SETTINGS
+```
+
+---
+
+## Project Structure
+
+All files will be created inside a new folder:
+
+```
+/newsletter-reader/
+├── app/
+│   ├── __init__.py              # Flask app factory (create_app)
+│   ├── config.py                # Configuration (DB path, API keys, defaults)
+│   ├── models.py                # SQLAlchemy models (Email, Sender, SyncLog)
+│   ├── routes/
+│   │   ├── __init__.py          # Blueprint registration
+│   │   ├── inbox.py             # Inbox list view routes
+│   │   ├── reader.py            # Full email reading view routes
+│   │   └── api.py               # JSON API routes (sync trigger, sender management)
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── apple_mail.py        # AppleScript-based Apple Mail reader
+│   │   ├── gmail.py             # Gmail API client
+│   │   ├── sync_engine.py       # Orchestrates sync from both sources
+│   │   └── newsletter_detector.py  # Gemini API newsletter classification
+│   ├── templates/
+│   │   ├── base.html            # Base layout with nav, fonts, meta tags
+│   │   ├── inbox.html           # Inbox list view
+│   │   ├── reader.html          # Full email reading view
+│   │   └── settings.html        # Settings / sender management
+│   └── static/
+│       ├── css/
+│       │   └── style.css        # All styles — dark theme, glassmorphism, animations
+│       └── js/
+│           └── app.js           # Client-side JS (sync button, filtering, interactions)
+├── instance/                    # Auto-created — holds SQLite DB file
+│   └── newsletters.db
+├── credentials/                 # Gmail OAuth files (gitignored)
+│   ├── credentials.json         # Downloaded from Google Cloud Console
+│   └── token.json               # Auto-generated after first OAuth flow
+├── requirements.txt             # Python dependencies
+├── run.py                       # Entry point: python run.py
+├── .env.example                 # Template for environment variables
+├── .gitignore                   # Ignore instance/, credentials/, .env, __pycache__
+└── README.md                    # Setup guide with screenshots
+```
+
+---
+
+## Proposed Changes
+
+### 1. Core Setup & Configuration
+
+---
+
+#### [NEW] [run.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/run.py)
+
+Entry point. Creates the Flask app via the factory and runs it.
+
+```python
+from app import create_app
+app = create_app()
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
+```
+
+---
+
+#### [NEW] [requirements.txt](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/requirements.txt)
+
+```
+Flask>=3.0
+Flask-SQLAlchemy>=3.1
+google-api-python-client>=2.100
+google-auth-httplib2>=0.2
+google-auth-oauthlib>=1.2
+google-generativeai>=0.8
+python-dotenv>=1.0
+beautifulsoup4>=4.12
+```
+
+---
+
+#### [NEW] [app/config.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/config.py)
+
+Configuration class:
+- `SQLALCHEMY_DATABASE_URI` → `sqlite:///instance/newsletters.db`
+- `GEMINI_API_KEY` → loaded from `.env` or environment variable
+- `GMAIL_CREDENTIALS_PATH` → `credentials/credentials.json`
+- `GMAIL_TOKEN_PATH` → `credentials/token.json`
+- `INITIAL_SCAN_LIMIT` → `500` (configurable number of emails to scan on first run)
+- `SECRET_KEY` → random key for Flask sessions
+
+---
+
+#### [NEW] [app/\_\_init\_\_.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/__init__.py)
+
+Flask app factory using `create_app()` pattern:
+1. Load config
+2. Initialize Flask-SQLAlchemy
+3. Register blueprints (inbox, reader, api)
+4. Create DB tables on first run
+5. Auto-trigger newsletter detection if no senders exist in DB yet
+
+---
+
+### 2. Database Layer
+
+---
+
+#### [NEW] [app/models.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/models.py)
+
+Three SQLAlchemy models:
+
+**`Email`** — stores the full email content:
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | Integer PK | Auto-increment |
+| `message_id` | String, unique | Email Message-ID header (dedup key) |
+| `source` | String | `"apple_mail"` or `"gmail"` |
+| `sender_email` | String | Sender's email address |
+| `sender_name` | String | Sender's display name |
+| `subject` | String | Email subject |
+| `date_received` | DateTime | When the email was received |
+| `body_html` | Text | Full HTML body |
+| `body_text` | Text | Plain text fallback |
+| `is_read` | Boolean | Read status in the app (default False) |
+| `is_newsletter` | Boolean | Whether flagged as newsletter (default None → unclassified) |
+| `synced_at` | DateTime | When this email was pulled into the DB |
+
+**`Sender`** — tracks known newsletter senders:
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | Integer PK | Auto-increment |
+| `email` | String, unique | Sender email address |
+| `name` | String | Display name |
+| `is_newsletter` | Boolean | AI-classified or user-confirmed |
+| `confidence` | Float | Gemini's confidence score (0–1) |
+| `email_count` | Integer | How many emails from this sender |
+| `user_override` | Boolean | Whether the user manually set this (nullable) |
+
+**`SyncLog`** — tracks sync history:
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | Integer PK | Auto-increment |
+| `source` | String | `"apple_mail"` or `"gmail"` |
+| `started_at` | DateTime | Sync start time |
+| `completed_at` | DateTime | Sync end time |
+| `emails_synced` | Integer | Count of new emails added |
+| `status` | String | `"success"`, `"error"`, `"in_progress"` |
+| `error_message` | Text | Error details if failed |
+
+---
+
+### 3. Email Source Services
+
+---
+
+#### [NEW] [app/services/apple\_mail.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/services/apple_mail.py)
+
+Apple Mail reader using `subprocess` + `osascript`:
+
+- **`is_available()`** — checks if running on macOS and Mail.app is accessible
+- **`fetch_emails(limit=500)`** — executes AppleScript to retrieve emails:
+  - Uses `tell application "Mail"` to iterate inbox messages
+  - Retrieves: `message id`, `sender`, `subject`, `date received`, `source` (raw MIME content for HTML extraction)
+  - Returns list of dicts
+- **`_parse_mime_source(raw_source)`** — uses Python's `email` library to extract HTML body from raw MIME content
+- **AppleScript strategy**: Fetch emails in batches (e.g., 50 at a time) to avoid AppleScript timeout issues. Use the `source` property for HTML extraction since `content` only returns plain text.
+
+> [!NOTE]
+> AppleScript interaction with Mail.app is inherently slow (~0.5–1s per message for `source`). For large inboxes, the initial sync may take several minutes. The UI will show progress.
+
+---
+
+#### [NEW] [app/services/gmail.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/services/gmail.py)
+
+Gmail API client:
+
+- **`is_configured()`** — checks if `credentials.json` exists
+- **`authenticate()`** — handles OAuth2 flow:
+  - Uses `InstalledAppFlow` for initial auth (opens browser)
+  - Stores token in `credentials/token.json`
+  - Auto-refreshes expired tokens
+  - Scope: `gmail.readonly`
+- **`fetch_emails(limit=500)`** — retrieves emails:
+  - `messages().list()` to get message IDs
+  - `messages().get(format='full')` for each message
+  - Recursively parses MIME parts to extract `text/html` and `text/plain`
+  - Base64url-decodes body content
+  - Extracts headers: `From`, `Subject`, `Date`, `Message-ID`
+  - Returns list of dicts matching the same format as `apple_mail.py`
+- **Rate limiting** — respects Gmail API quotas with exponential backoff
+
+---
+
+#### [NEW] [app/services/sync\_engine.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/services/sync_engine.py)
+
+Orchestrates syncing from both sources:
+
+- **`sync_all()`** — runs Apple Mail + Gmail sync sequentially
+- **`sync_source(source_name)`** — syncs a specific source
+- **Deduplication** — uses `message_id` (Message-ID header) to skip already-synced emails
+- **Incremental sync** — on subsequent syncs, only fetch emails newer than the last sync timestamp
+- **Progress tracking** — updates `SyncLog` entries in real-time
+- **Error handling** — catches per-source errors so one failing doesn't block the other
+- **Post-sync hook** — after sync, trigger newsletter detection for any unclassified senders
+
+---
+
+### 4. AI Newsletter Detection
+
+---
+
+#### [NEW] [app/services/newsletter\_detector.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/services/newsletter_detector.py)
+
+Gemini-powered newsletter sender classification:
+
+- **`detect_newsletters()`** — main entry point:
+  1. Query DB for all unique senders not yet classified
+  2. For each unclassified sender, gather sample data (sender name, email, sample subjects)
+  3. Batch senders into groups of ~20 for efficient API usage
+  4. Send structured prompt to Gemini asking it to classify each sender
+  5. Parse response and update `Sender` table with `is_newsletter` flag and `confidence`
+  6. Update all corresponding `Email` records
+
+- **Gemini prompt design**:
+```
+You are an email classification assistant. Given a list of email senders 
+with sample subject lines, classify each as "newsletter" or "not_newsletter".
+
+A newsletter is: a recurring email from a company, publication, or service 
+that delivers content, updates, or promotions on a regular basis. 
+Examples: Substack posts, marketing emails, product updates, digests.
+
+NOT a newsletter: personal emails, transactional receipts, 
+one-time notifications, calendar invites, direct correspondence.
+
+For each sender, respond with JSON:
+{"email": "...", "is_newsletter": true/false, "confidence": 0.0-1.0}
+```
+
+- **Model**: Use `gemini-2.0-flash` (fast, free tier friendly)
+- **Rate limit handling**: Implement delays between batches to stay within free tier RPM limits
+- **Caching**: Once a sender is classified, don't re-classify unless user requests it
+
+---
+
+### 5. Flask Routes
+
+---
+
+#### [NEW] [app/routes/inbox.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/routes/inbox.py)
+
+Blueprint: `inbox`
+
+| Route | Method | Description |
+|---|---|---|
+| `/` | GET | Redirect to `/inbox` |
+| `/inbox` | GET | Render inbox view — list of newsletter emails, newest first |
+| `/inbox?filter=unread` | GET | Filter to unread only |
+| `/inbox?filter=all` | GET | Show all emails (newsletters + non-newsletters) |
+| `/inbox?source=gmail` | GET | Filter by source |
+| `/inbox?q=search_term` | GET | Search by subject or sender |
+
+- Pagination: 50 emails per page, infinite scroll or page numbers
+- Returns rendered `inbox.html` template
+
+---
+
+#### [NEW] [app/routes/reader.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/routes/reader.py)
+
+Blueprint: `reader`
+
+| Route | Method | Description |
+|---|---|---|
+| `/read/<int:email_id>` | GET | Render full email reading view |
+
+- Renders `reader.html` with the email's HTML body in a sandboxed iframe
+- Marks the email as read
+- Provides next/previous navigation
+- Shows sender info, date, subject prominently
+
+---
+
+#### [NEW] [app/routes/api.py](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/routes/api.py)
+
+Blueprint: `api` — JSON endpoints for frontend JS
+
+| Route | Method | Description |
+|---|---|---|
+| `/api/sync` | POST | Trigger a full sync (Apple Mail + Gmail) |
+| `/api/sync/status` | GET | Get current sync status |
+| `/api/senders` | GET | List all detected senders with newsletter status |
+| `/api/senders/<id>/toggle` | POST | Toggle a sender's newsletter status (user override) |
+| `/api/emails/<id>/read` | POST | Mark email as read |
+| `/api/detect` | POST | Re-run Gemini newsletter detection |
+| `/api/stats` | GET | Dashboard stats (total emails, newsletters, sources, last sync) |
+
+---
+
+### 6. Frontend (Templates + Static Assets)
+
+---
+
+#### [NEW] [app/templates/base.html](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/templates/base.html)
+
+Base layout:
+- Google Fonts: **Inter** for body, **JetBrains Mono** for monospace
+- Dark theme by default with a rich color palette
+- Sidebar navigation: Inbox, All Mail, Senders, Settings
+- Top bar: app title, sync button with animated spinner, search bar
+- SEO meta tags, favicon
+- Block structure: `{% block content %}`, `{% block scripts %}`
+
+---
+
+#### [NEW] [app/templates/inbox.html](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/templates/inbox.html)
+
+Inbox list view:
+- Email cards with: sender avatar (generated from initials), sender name, subject, date, read/unread indicator
+- Filter tabs: Newsletters | All | Unread
+- Source badges (Apple Mail / Gmail) with subtle icons
+- Click to navigate to reading view
+- Infinite scroll or "Load more" button
+- Empty state with friendly illustration when no newsletters found
+- Responsive: cards stack on mobile
+
+---
+
+#### [NEW] [app/templates/reader.html](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/templates/reader.html)
+
+Full reading view:
+- Header: sender name + email, subject line, date, source badge
+- Email body rendered in a **sandboxed iframe** (`srcdoc` attribute) to isolate newsletter CSS/JS from the app's styles
+- Navigation: ← Back to Inbox, Previous / Next email buttons
+- Action buttons: Mark as read/unread, toggle newsletter status
+- Reading progress indicator
+- Clean typography for readability
+
+---
+
+#### [NEW] [app/templates/settings.html](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/templates/settings.html)
+
+Settings & sender management:
+- List of all detected senders with toggle switches for newsletter status
+- Confidence scores from Gemini displayed as colored badges
+- "Re-detect" button to re-run AI classification
+- Sync history log from `SyncLog` table
+- Configuration display (scan limit, connected sources)
+
+---
+
+#### [NEW] [app/static/css/style.css](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/static/css/style.css)
+
+Design system — premium dark theme:
+
+- **Color palette**:
+  - Background: `hsl(230, 25%, 8%)` (deep navy-black)
+  - Surface: `hsl(230, 20%, 12%)` (elevated cards)
+  - Primary: `hsl(250, 90%, 65%)` (vibrant purple)
+  - Accent: `hsl(170, 80%, 50%)` (teal-green for success/badges)
+  - Text: `hsl(230, 15%, 85%)` (soft white)
+  - Muted: `hsl(230, 10%, 50%)` (secondary text)
+- **Glassmorphism** cards with `backdrop-filter: blur(20px)` and subtle borders
+- **Animations**:
+  - Sync button spinner (CSS keyframes rotation)
+  - Email card hover: subtle lift + glow effect
+  - Page transitions: fade-in on content load
+  - Reading progress bar animation
+  - Skeleton loading states during sync
+- **Typography**: Inter font, clean hierarchy (16px base, 1.6 line-height)
+- **Layout**: CSS Grid for main layout, Flexbox for components
+- **Responsive**: Mobile-first breakpoints at 768px and 1024px
+- **Scrollbar**: Custom styled scrollbar matching the dark theme
+
+---
+
+#### [NEW] [app/static/js/app.js](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/app/static/js/app.js)
+
+Client-side JavaScript (vanilla, no frameworks):
+
+- **Sync button handler**: POST to `/api/sync`, show spinner, poll `/api/sync/status` for progress, update UI on completion
+- **Search**: Debounced input that filters the inbox via query params or client-side filtering
+- **Infinite scroll**: Load more emails when scrolling near bottom
+- **Mark as read**: Fire-and-forget POST to `/api/emails/<id>/read` when opening an email
+- **Sender toggle**: PATCH request to toggle newsletter status, update UI optimistically
+- **Toast notifications**: Show success/error messages with auto-dismiss
+- **Keyboard shortcuts**: `j`/`k` for next/prev email, `Escape` to go back to inbox
+
+---
+
+### 7. Supporting Files
+
+---
+
+#### [NEW] [.env.example](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/.env.example)
+
+```
+GEMINI_API_KEY=your_gemini_api_key_here
+FLASK_SECRET_KEY=change_this_to_a_random_string
+INITIAL_SCAN_LIMIT=500
+```
+
+---
+
+#### [NEW] [.gitignore](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/.gitignore)
+
+```
+instance/
+credentials/
+.env
+__pycache__/
+*.pyc
+.DS_Store
+```
+
+---
+
+#### [NEW] [README.md](file:///Users/chasewong/Desktop/Main_Coding_Projects/Coding-Projects/antigravity/newsletter-reader/README.md)
+
+Setup guide covering:
+1. Python 3.10+ installation
+2. Virtual environment setup
+3. `pip install -r requirements.txt`
+4. Gemini API key setup (link to Google AI Studio)
+5. Gmail API setup (step-by-step with Cloud Console screenshots)
+6. macOS permissions for Apple Mail automation
+7. Running the app (`python run.py`)
+8. First-run walkthrough (what to expect)
+
+---
+
+## Data Flow
+
+### Sync Flow
+
+```mermaid
+sequenceDiagram
+    participant UI as Web UI
+    participant API as Flask API
+    participant SE as Sync Engine
+    participant AM as Apple Mail
+    participant GM as Gmail API
+    participant DB as SQLite
+    participant AI as Gemini API
+
+    UI->>API: POST /api/sync
+    API->>SE: sync_all()
+    
+    par Apple Mail Sync
+        SE->>AM: fetch_emails(limit)
+        AM-->>SE: [email dicts]
+    and Gmail Sync
+        SE->>GM: fetch_emails(limit)
+        GM-->>SE: [email dicts]
+    end
+    
+    SE->>DB: Insert new emails (dedup by message_id)
+    SE->>DB: Update SyncLog
+    
+    SE->>AI: detect_newsletters(unclassified_senders)
+    AI-->>SE: classification results
+    SE->>DB: Update Sender + Email tables
+    
+    API-->>UI: {status: "complete", new_emails: N}
+```
+
+### Reading Flow (Fully Offline)
+
+```mermaid
+sequenceDiagram
+    participant UI as Web UI
+    participant Flask as Flask Server
+    participant DB as SQLite
+
+    UI->>Flask: GET /inbox
+    Flask->>DB: SELECT emails WHERE is_newsletter=true ORDER BY date DESC
+    DB-->>Flask: [emails]
+    Flask-->>UI: Rendered inbox.html
+
+    UI->>Flask: GET /read/42
+    Flask->>DB: SELECT * FROM email WHERE id=42
+    DB-->>Flask: email with full HTML body
+    Flask->>DB: UPDATE email SET is_read=true
+    Flask-->>UI: Rendered reader.html (HTML body in sandboxed iframe)
+```
+
+---
+
+## Verification Plan
+
+### Automated Tests
+
+Since the user requested plan-only, tests will be written during execution:
+
+1. **Unit tests** (pytest):
+   - `test_models.py` — model creation, constraints, relationships
+   - `test_newsletter_detector.py` — prompt construction, response parsing (mock Gemini)
+   - `test_sync_engine.py` — deduplication logic, incremental sync logic
+
+2. **Integration tests**:
+   - `test_gmail.py` — Gmail API mock with sample payloads
+   - `test_apple_mail.py` — AppleScript output parsing (mock subprocess)
+
+3. **Route tests**:
+   - `test_routes.py` — all Flask routes return expected status codes and content
+
+### Manual Verification
+
+1. **Run the app**: `python run.py` → verify the UI loads at `http://localhost:5000`
+2. **Apple Mail sync**: Trigger sync, verify emails appear in inbox
+3. **Gmail sync**: Complete OAuth flow, trigger sync, verify emails appear
+4. **Newsletter detection**: Verify Gemini correctly classifies sample senders
+5. **Offline mode**: Disconnect from internet, verify inbox and reading views still work
+6. **Responsive UI**: Test at mobile (375px), tablet (768px), and desktop (1440px) widths
+7. **Browser recording**: Capture a walkthrough video of the full user flow using the browser tool
