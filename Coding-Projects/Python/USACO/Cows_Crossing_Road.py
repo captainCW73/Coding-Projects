@@ -11,5 +11,5 @@ for _ in range(lines):
             crossed_road += 1
 
     last_position[cowid] = position
-
+ 
 print(crossed_road)
