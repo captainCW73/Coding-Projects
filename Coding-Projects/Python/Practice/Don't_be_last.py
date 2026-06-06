@@ -21,4 +21,4 @@ if second_amount is not None:
 else:
     cow_pairs = list(zip(names, milk_amount))
     cow_pairs.sort(key=lambda x: x[1])
-print(cow_pairs[0][0], cow_pairs[1][0])
+print(cow_pairs[0][0], cow_pairs[1][0])d

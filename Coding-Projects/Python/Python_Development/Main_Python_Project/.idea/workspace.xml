@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a1685a5f-4d84-4bf0-8bb9-23b53a0c25ca" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/2d list activity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bronze Court.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Class 10.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Class 5 Homework.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Class 5.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Class 6.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Class 7.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Class 8.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Contest.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Detecting collision.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dictionary Activity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Displaying Text.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dmoj sushi question class 11.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Donut Shop.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Funtions Activity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/How to draw a line.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/How to draw a rectangle.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/List Activity 2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/List Activity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Pygame Activity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Pygame.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Q2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Rotating Letters.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Telemarketer.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Text Activity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tic Tac Toe class 8.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/While loops Activity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dATE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Class 4.py" beforeDir="false" afterPath="$PROJECT_DIR$/Class 4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/for loops activity.py" beforeDir="false" afterPath="$PROJECT_DIR$/for loops activity.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Jupyter Notebook" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="32hb7prizawgzBetjluZBnHN1uC" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.2d list activity.executor": "Run",
+    "Python.Backslash Activity.executor": "Run",
+    "Python.Class 3.executor": "Run",
+    "Python.Class 4.executor": "Run",
+    "Python.Class 5 Homework.executor": "Run",
+    "Python.Class 5.executor": "Run",
+    "Python.Class 7.executor": "Run",
+    "Python.Conditional Activity.executor": "Run",
+    "Python.Contest.executor": "Run",
+    "Python.Detecting collision.executor": "Run",
+    "Python.Dictionary Activity.executor": "Run",
+    "Python.Displaying Text.executor": "Run",
+    "Python.Dmoj sushi question class 11.executor": "Run",
+    "Python.Donut Shop.executor": "Run",
+    "Python.First Project.executor": "Run",
+    "Python.Funtions Activity.executor": "Run",
+    "Python.Homework week 2.executor": "Run",
+    "Python.Homework week 3.executor": "Run",
+    "Python.How to draw a line.executor": "Run",
+    "Python.How to draw a rectangle.executor": "Run",
+    "Python.Indexing activity.executor": "Run",
+    "Python.List Activity 2.executor": "Run",
+    "Python.List Activity.executor": "Run",
+    "Python.Printe end= Activity.executor": "Run",
+    "Python.Pygame Activity.executor": "Run",
+    "Python.Pygame.executor": "Run",
+    "Python.Q2.executor": "Run",
+    "Python.Range indexing activity.executor": "Run",
+    "Python.Rotating Letters.executor": "Run",
+    "Python.String Func. Activity.executor": "Run",
+    "Python.Telemarketer.executor": "Run",
+    "Python.Text Activity.executor": "Run",
+    "Python.Tic Tac Toe class 8.executor": "Run",
+    "Python.While loops Activity.executor": "Run",
+    "Python.for loops activity.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/chasewong/Desktop/PythonProject"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-ce6832f46686-7b97d883f26b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.25557.178" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a1685a5f-4d84-4bf0-8bb9-23b53a0c25ca" name="Changes" comment="" />
+      <created>1757875587028</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1757875587028</updated>
+    </task>
+    <task id="LOCAL-00001" summary="rh">
+      <option name="closed" value="true" />
+      <created>1759692107014</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1759692107014</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="hi" />
+    <MESSAGE value="rh" />
+    <option name="LAST_COMMIT_MESSAGE" value="rh" />
+  </component>
+</project>
