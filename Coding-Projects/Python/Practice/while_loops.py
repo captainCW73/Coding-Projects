@@ -4,4 +4,4 @@ for item in my_list:
 i = 0
 while i < len(my_list):
     print(my_list[i])
-    i += 1
+    i += 1  
