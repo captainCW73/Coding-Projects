@@ -6,4 +6,4 @@ def checkDriverAge(age = 0):
         return("Powering On. Enjoy the ride!")
     elif int(age) == 18:
         return("Congratulations on your first year of driving. Enjoy the ride!")
-print(checkDriverAge(17))
+print(checkDriverAge(18))
